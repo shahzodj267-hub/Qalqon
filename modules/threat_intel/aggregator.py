@@ -1,7 +1,6 @@
-from modules.threat_intel import abuseipdb, otx, virustotal
+from modules.threat_intel import abuseipdb, ioc, otx, virustotal
 from modules.threat_intel.errors import IntelError
 
-# Har manbaning umumiy ballga ta'siri. OTX shovqinliroq, shuning uchun vazni kam.
 WEIGHTS = {"abuseipdb": 0.4, "virustotal": 0.4, "otx": 0.2}
 
 SOURCES = (
@@ -31,27 +30,30 @@ def _verdict(score: int) -> str:
     return "XAVFLI"
 
 
-def analyze_ip(ip: str) -> dict:
-    sources, errors = [], []
+def analyze(raw_value: str) -> dict:
+    kind, value = ioc.parse(raw_value)
+    if kind is None:
+        raise ValueError(f"'{raw_value}' IP, domen yoki hash emas")
 
+    sources, errors = [], []
     for name, module in SOURCES:
+        if kind not in module.SUPPORTS:
+            continue  # bu manba shu turni bilmaydi, jim o'tkazamiz
         try:
-            result = module.check_ip(ip)
+            result = module.check(value, kind)
         except IntelError as e:
             errors.append({"source": name, "error": str(e)})
-            continue  # bitta manba yiqilsa, qolganlari ishlayveradi
+            continue
         result["risk"] = _risk(result)
         sources.append(result)
 
+    base = {"ioc": value, "kind": kind, "sources": sources, "errors": errors}
     if not sources:
-        return {"ip": ip, "score": None, "verdict": "NOMA'LUM", "sources": [], "errors": errors}
+        return {**base, "score": None, "verdict": "NOMA'LUM"}
 
-    # Javob bergan manbalar bo'yicha vaznli o'rtacha
     total_weight = sum(WEIGHTS[s["source"]] for s in sources)
     score = round(sum(WEIGHTS[s["source"]] * s["risk"] for s in sources) / total_weight)
-
-    # Bitta manba juda aniq signal bersa, o'rtacha uni "suyultirib" yubormasin
     if max(s["risk"] for s in sources) >= 90:
         score = max(score, 60)
 
-    return {"ip": ip, "score": score, "verdict": _verdict(score), "sources": sources, "errors": errors}
+    return {**base, "score": score, "verdict": _verdict(score)}

@@ -43,3 +43,15 @@ def check_ip(ip: str, max_age_days: int = 90) -> dict:
         "usage_type": data.get("usageType"),
         "last_reported": data.get("lastReportedAt"),
     }
+
+
+SUPPORTS = {"ip"}
+
+
+def check(value: str, kind: str) -> dict:
+    result = check_ip(value)
+    result["detail"] = (
+        f"{result['reports']} hisobot ({result['users']} foydalanuvchi) "
+        f"| {result['country']} | {result['isp']}"
+    )
+    return result
