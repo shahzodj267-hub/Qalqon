@@ -1,3 +1,4 @@
+from modules.threat_intel.errors import IntelError
 import httpx
 
 from core.config import settings
@@ -5,7 +6,7 @@ from core.config import settings
 API_URL = "https://api.abuseipdb.com/api/v2/check"
 
 
-class AbuseIPDBError(Exception):
+class AbuseIPDBError(IntelError):
     """AbuseIPDB bilan ishlashdagi xatolar uchun."""
 
 
