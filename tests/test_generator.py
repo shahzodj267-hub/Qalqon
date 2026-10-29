@@ -83,11 +83,21 @@ def test_prompt_forbids_secrets_fields():
     assert "Do NOT write id" in generator.SYSTEM_PROMPT
 
 
-def test_deprecated_technique_triggers_retry():
+def test_deprecated_technique_is_stripped_with_warning():
     pytest.importorskip("sigma.data.mitre_attack")
     old = GOOD_REPLY.replace("attack.t1105", "attack.t1086")
-    result = generate("x", provider=FakeProvider([old, GOOD_REPLY]))
+    result = generate("x", provider=FakeProvider([old]))
+    assert result.attempts == 1
+    assert "t1086" not in result.yaml_text.lower()
+    assert any("T1086" in w for w in result.warnings)
+
+
+def test_wrong_process_field_triggers_retry():
+    bad = GOOD_REPLY.replace("CommandLine|contains", "TargetFileName|contains")
+    provider = FakeProvider([bad, GOOD_REPLY])
+    result = generate("x", provider=provider)
     assert result.attempts == 2
+    assert "ParentImage" in provider.calls[1][2]["content"]
 
 
 def test_invented_windows_category_triggers_retry():

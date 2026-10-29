@@ -48,6 +48,36 @@ Fields:
 - Be precise about which EventID matches the description. If the description is vague, write the broadest
   correct rule and mention the limits in falsepositives.
 
+Process creation fields (category: process_creation). Use ONLY these:
+Image, CommandLine, ParentImage, ParentCommandLine, OriginalFileName, User, ParentUser,
+IntegrityLevel, CurrentDirectory, Company, Product, Description, Hashes, ProcessId,
+ParentProcessId, LogonId. There is NO TargetFileName in process events.
+"X spawns Y" means ParentImage is X and Image is Y.
+
+Example 0 (parent spawns child):
+
+title: Office Application Spawning Shell
+description: Detects Word or Excel starting cmd.exe or powershell.exe
+tags:
+  - attack.execution
+  - attack.t1204.002
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_parent:
+    ParentImage|endswith:
+      - '\winword.exe'
+      - '\excel.exe'
+  selection_child:
+    Image|endswith:
+      - '\cmd.exe'
+      - '\powershell.exe'
+  condition: selection_parent and selection_child
+falsepositives:
+  - Office macros used by legitimate business tools
+level: high
+
 Example 1:
 
 title: Certutil Download Activity
@@ -120,7 +150,7 @@ def extract_yaml(text: str) -> str:
     return (match.group(1) if match else text).strip()
 
 
-def finalize(raw_yaml: str) -> str:
+def finalize(raw_yaml: str) -> tuple[str, list[str]]:
     """YAML'ni o'qiydi, id/author/date ni o'zimiz qo'yadi va qayta yozadi."""
     try:
         data = yaml.safe_load(raw_yaml)
@@ -132,7 +162,8 @@ def finalize(raw_yaml: str) -> str:
     data["author"] = "Qalqon"
     data["date"] = date.today().isoformat()
     data["status"] = "experimental"
-    return yaml.safe_dump(data, sort_keys=False, allow_unicode=True)
+    removed = converter.strip_unknown_techniques(data)
+    return yaml.safe_dump(data, sort_keys=False, allow_unicode=True), removed
 
 
 def validate(yaml_text: str):
@@ -151,6 +182,9 @@ def validate(yaml_text: str):
         logsource_error = converter.bad_logsource(collection)
         if logsource_error:
             raise RuleError(logsource_error)
+        field_error = converter.bad_fields(collection)
+        if field_error:
+            raise RuleError(field_error)
 
         for target in converter.BACKENDS:
             converter.convert(collection, target)
@@ -178,7 +212,7 @@ def generate(
     for attempt in range(1, max_attempts + 1):
         reply = provider.chat(SYSTEM_PROMPT, messages)
         try:
-            yaml_text = finalize(extract_yaml(reply))
+            yaml_text, removed = finalize(extract_yaml(reply))
             collection = validate(yaml_text)
         except RuleError as e:
             last_error = str(e)
@@ -197,6 +231,8 @@ def generate(
             continue
 
         warnings = []
+        if removed:
+            warnings.append(f"Noto'g'ri/eskirgan MITRE ID olib tashlandi: {', '.join(removed)}")
         if not converter.attack_techniques(collection):
             warnings.append("MITRE ATT&CK texnika tegi (attack.tXXXX) yo'q")
         if converter.mitre_attack_techniques is None:

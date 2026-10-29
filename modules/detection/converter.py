@@ -76,3 +76,51 @@ def bad_logsource(collection: SigmaCollection) -> str | None:
                 "service: security (or system) with no category."
             )
     return None
+
+
+PROCESS_CREATION_FIELDS = {
+    "Image", "CommandLine", "ParentImage", "ParentCommandLine", "OriginalFileName",
+    "User", "ParentUser", "IntegrityLevel", "CurrentDirectory", "Company", "Product",
+    "Description", "Hashes", "ProcessId", "ParentProcessId", "LogonId",
+}
+
+
+def _walk(node):
+    for item in getattr(node, "detection_items", []):
+        if hasattr(item, "detection_items"):
+            yield from _walk(item)
+        else:
+            yield item
+
+
+def bad_fields(collection: SigmaCollection) -> str | None:
+    """process_creation qoidasida mavjud bo'lmagan maydon ishlatilgan bo'lsa, xabar qaytaradi."""
+    for rule in collection.rules:
+        if rule.logsource.category != "process_creation":
+            continue
+        fields = {i.field for d in rule.detection.detections.values() for i in _walk(d) if i.field}
+        unknown = sorted(fields - PROCESS_CREATION_FIELDS)
+        if unknown:
+            return (
+                f"Fields {', '.join(unknown)} do not exist in process_creation events. "
+                f"Allowed fields: {', '.join(sorted(PROCESS_CREATION_FIELDS))}. "
+                "Remember: 'X spawns Y' means ParentImage is X and Image is Y."
+            )
+    return None
+
+
+def strip_unknown_techniques(data: dict) -> list[str]:
+    """YAML lug'atidan MITRE bazasida yo'q texnika teglarini olib tashlaydi. Olib tashlanganlarni qaytaradi."""
+    if mitre_attack_techniques is None:
+        return []
+    removed, kept = [], []
+    for tag in data.get("tags", []) or []:
+        name = str(tag).lower().removeprefix("attack.")
+        if str(tag).lower().startswith("attack.") and TECHNIQUE_RE.match(name) \
+                and name.upper() not in mitre_attack_techniques:
+            removed.append(name.upper())
+        else:
+            kept.append(tag)
+    if "tags" in data:
+        data["tags"] = kept
+    return removed
