@@ -1,0 +1,62 @@
+# Oddiy, zararsiz voqealar. Hech bir process_creation qoidasi ularni topmasligi kerak.
+events:
+  - expect: no_match
+    note: Explorer opens Chrome
+    event:
+      Image: 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: '"C:\Program Files\Google\Chrome\Application\chrome.exe"'
+  - expect: no_match
+    note: Scheduler service host
+    event:
+      Image: 'C:\Windows\System32\svchost.exe'
+      ParentImage: 'C:\Windows\System32\services.exe'
+      CommandLine: 'C:\Windows\system32\svchost.exe -k netsvcs -p -s Schedule'
+  - expect: no_match
+    note: Admin runs backup script with PowerShell
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File C:\Scripts\backup.ps1'
+  - expect: no_match
+    note: User opens cmd from Explorer
+    event:
+      Image: 'C:\Windows\System32\cmd.exe'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: 'cmd.exe /c dir'
+  - expect: no_match
+    note: Explorer opens a Word document
+    event:
+      Image: 'C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: '"C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE" /n "C:\Users\anna\Documents\report.docx"'
+  - expect: no_match
+    note: Outlook opens an Excel attachment
+    event:
+      Image: 'C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE'
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE'
+      CommandLine: '"C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE" /dde'
+  - expect: no_match
+    note: Certutil verifies a file hash (not a download)
+    event:
+      Image: 'C:\Windows\System32\certutil.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'certutil -hashfile C:\temp\setup.exe SHA256'
+  - expect: no_match
+    note: Certutil lists the certificate store
+    event:
+      Image: 'C:\Windows\System32\certutil.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'certutil -store my'
+  - expect: no_match
+    note: Rundll32 opens a control panel applet
+    event:
+      Image: 'C:\Windows\System32\rundll32.exe'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: 'rundll32.exe shell32.dll,Control_RunDLL desk.cpl'
+  - expect: no_match
+    note: Printer helper started by Excel
+    event:
+      Image: 'C:\Windows\splwow64.exe'
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE'
+      CommandLine: 'splwow64.exe 12288'

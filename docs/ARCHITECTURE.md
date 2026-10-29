@@ -27,3 +27,10 @@
 
 ## Next task
 Module 2: Detection Copilot.
+
+## Module 2: log testing
+- `modules/detection/evaluator.py` - own minimal Sigma evaluator (contains/startswith/endswith/all/re, wildcards, and/or/not, `1 of x*`). Unsupported features raise EvaluationError, never silently pass.
+- `modules/detection/tester.py` - runs a rule over sample events, reports hits, false positives and fields that appear in no event.
+- Sample data: `rules/samples/benign_process_creation.yml` (shared benign corpus), `rules/tests/*.yml` (attack + benign events per scenario).
+- CLI: `rule test <rule.yml> <events.yml>`, `rule generate "<text>" --logs <events.yml>`
+- Limits: logsource is not checked; passing only means passing the sample events; no correlation/aggregation.

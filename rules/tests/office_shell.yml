@@ -1,0 +1,19 @@
+events:
+  - expect: match
+    note: Word starts cmd.exe
+    event:
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE'
+      Image: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'cmd.exe /c whoami'
+  - expect: match
+    note: Excel starts PowerShell
+    event:
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE'
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      CommandLine: 'powershell.exe -NoProfile -Command "Get-Date"'
+  - expect: match
+    note: Word starts PowerShell
+    event:
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE'
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      CommandLine: 'powershell.exe -Command "Get-Process"'

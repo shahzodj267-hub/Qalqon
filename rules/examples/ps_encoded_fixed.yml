@@ -1,0 +1,27 @@
+title: PowerShell Encoded Command Execution
+id: 3b1c8f4e-5a2d-4e7b-9c60-1d2e3f4a5b6c
+status: experimental
+description: Detects powershell or pwsh started with an encoded command parameter
+author: Qalqon
+date: '2026-10-29'
+tags:
+  - attack.execution
+  - attack.t1059.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_img:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+  selection_cli:
+    CommandLine|contains:
+      - ' -enc '
+      - ' -ec '
+      - ' -e '
+      - ' -encodedcommand '
+  condition: selection_img and selection_cli
+falsepositives:
+  - Management tools that pass encoded scripts
+level: medium

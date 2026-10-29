@@ -1,0 +1,25 @@
+events:
+  - expect: match
+    note: powershell -enc launched from Word
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE'
+      CommandLine: 'powershell.exe -NoP -W Hidden -enc JABhAD0AMQA='
+  - expect: match
+    note: pwsh (PowerShell 7) with -enc
+    event:
+      Image: 'C:\Program Files\PowerShell\7\pwsh.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: '"C:\Program Files\PowerShell\7\pwsh.exe" -enc JABhAD0AMQA='
+  - expect: match
+    note: Long form -EncodedCommand
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'powershell.exe -ExecutionPolicy Bypass -EncodedCommand JABhAD0AMQA='
+  - expect: no_match
+    note: Harmless -Encoding parameter
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: 'powershell.exe -NoProfile -Command "Get-Content C:\logs\app.log -Encoding UTF8"'

@@ -1,0 +1,51 @@
+events:
+  - expect: match
+    note: User added to Administrators (4732)
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Administrators
+      TargetSid: 'S-1-5-32-544'
+      MemberSid: 'S-1-5-21-1111111111-2222222222-3333333333-1105'
+      SubjectUserName: helpdesk01
+  - expect: match
+    note: Another account added to Administrators
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Administrators
+      TargetSid: 'S-1-5-32-544'
+      MemberSid: 'S-1-5-21-1111111111-2222222222-3333333333-1207'
+      SubjectUserName: svc_deploy
+  - expect: no_match
+    note: User added to Remote Desktop Users, not admin
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Remote Desktop Users
+      TargetSid: 'S-1-5-32-555'
+      MemberSid: 'S-1-5-21-1111111111-2222222222-3333333333-1105'
+      SubjectUserName: helpdesk01
+  - expect: no_match
+    note: New user created (4720), not admin yet
+    event:
+      Channel: Security
+      EventID: 4720
+      TargetUserName: jsmith
+      SamAccountName: jsmith
+      SubjectUserName: helpdesk01
+  - expect: no_match
+    note: User removed from Administrators (4733)
+    event:
+      Channel: Security
+      EventID: 4733
+      TargetUserName: Administrators
+      TargetSid: 'S-1-5-32-544'
+      SubjectUserName: helpdesk01
+  - expect: no_match
+    note: Normal logon (4624)
+    event:
+      Channel: Security
+      EventID: 4624
+      TargetUserName: anna
+      LogonType: 2
