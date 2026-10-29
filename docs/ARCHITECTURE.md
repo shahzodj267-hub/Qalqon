@@ -21,9 +21,9 @@
 
 ## Status
 - [x] Module 1: threat intel CLI (IP, domain, hash)
-- [ ] Tests, CI
+- [x] Tests (pytest), CI (GitHub Actions)
 - [ ] Web API
 - [ ] Module 2: Detection Copilot
 
 ## Next task
-Write pytest tests for `ioc.parse` and the aggregator score formula.
+Module 2: Detection Copilot.

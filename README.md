@@ -1,4 +1,5 @@
 # Qalqon 🛡️
+[![CI](https://github.com/shahzodj267-hub/Qalqon/actions/workflows/ci.yml/badge.svg)](https://github.com/shahzodj267-hub/Qalqon/actions/workflows/ci.yml)
 
 **Security operations toolkit that turns scattered threat intelligence into one clear verdict.**
 
@@ -34,7 +35,7 @@ python -m cli.main ioc 185.220.101.4
 
 ## Roadmap
 
-- [ ] Unit tests and CI
+- [x] Unit tests and CI
 - [ ] Web API (FastAPI) and web panel
 - [ ] AI-generated summaries (cloud or local LLM)
 - [ ] Detection Copilot: plain language to Sigma / SPL / KQL / YARA with MITRE ATT&CK mapping
