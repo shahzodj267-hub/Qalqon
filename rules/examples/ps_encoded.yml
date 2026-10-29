@@ -1,0 +1,21 @@
+title: PowerShell Base64 Encoded Command Execution
+description: Detects PowerShell commands executed with base64 encoding (-enc)
+tags:
+- attack.execution
+- attack.t1059.001
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_img:
+    Image|endswith: \powershell.exe
+  selection_cli:
+    CommandLine|contains: -enc
+  condition: selection_img and selection_cli
+falsepositives:
+- Legitimate use of PowerShell for automation
+level: medium
+id: d2cf4d90-5ac6-4164-abb2-6f8cc8281446
+author: Qalqon
+date: '2026-10-29'
+status: experimental
