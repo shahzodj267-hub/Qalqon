@@ -5,6 +5,8 @@ from modules.threat_intel.aggregator import analyze
 app = typer.Typer(help="Qalqon: kiberxavfsizlik platformasi")
 from cli.rule import rule_app
 app.add_typer(rule_app, name="rule")
+from cli.ai import ai_app
+app.add_typer(ai_app, name="ai")
 
 KIND_NAMES = {"ip": "IP manzil", "domain": "Domen", "hash": "Fayl hash"}
 
