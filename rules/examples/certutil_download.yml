@@ -1,0 +1,23 @@
+title: Certutil Download Activity
+id: 7c1f3a52-9d4e-4b6a-8e21-5f0c2d9a1b34
+status: experimental
+description: Detects certutil used to download files from a URL
+author: Qalqon
+date: 2026-10-28
+tags:
+  - attack.command-and-control
+  - attack.t1105
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_img:
+    Image|endswith: '\certutil.exe'
+  selection_cli:
+    CommandLine|contains:
+      - 'urlcache'
+      - '-split'
+  condition: selection_img and selection_cli
+falsepositives:
+  - Rare administrative use
+level: medium

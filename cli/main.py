@@ -3,6 +3,8 @@ import typer
 from modules.threat_intel.aggregator import analyze
 
 app = typer.Typer(help="Qalqon: kiberxavfsizlik platformasi")
+from cli.rule import rule_app
+app.add_typer(rule_app, name="rule")
 
 KIND_NAMES = {"ip": "IP manzil", "domain": "Domen", "hash": "Fayl hash"}
 
