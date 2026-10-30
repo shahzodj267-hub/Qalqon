@@ -183,6 +183,9 @@ class Matcher:
             raise EvaluationError("timeframe/aggregation qoidalari qo'llanmaydi")
 
         self.fields: set[str] = set()
+        self.raw_selections = {
+            str(n): s for n, s in detection.items() if n not in ("condition", "timeframe")
+        }
         selections = {
             str(name): _selection_test(sel, self.fields)
             for name, sel in detection.items()
@@ -201,3 +204,23 @@ class Matcher:
 
     def matches(self, event: Event) -> bool:
         return any(test(event) for test in self._tests)
+
+    def explain(self, event: Event) -> list[str]:
+        """Voqea har bir shartga nega mos kelgani yoki kelmagani (AI uchun diagnostika)."""
+        lines = []
+        for name, selection in self.raw_selections.items():
+            if not isinstance(selection, dict):
+                continue
+            for key, value in selection.items():
+                field, *modifiers = str(key).split("|")
+                values = value if isinstance(value, list) else [value]
+                actual = _get(event, field)
+                shown = "<missing>" if actual is None else repr(str(actual)[:100])
+                hits = [v for v in values if _value_test(v, modifiers)(actual)]
+                if hits:
+                    lines.append(f"    {name}: {key} MATCHED because of {hits} (event value: {shown})")
+                else:
+                    lines.append(
+                        f"    {name}: {key} did NOT match (event value: {shown}; rule values: {values})"
+                    )
+        return lines

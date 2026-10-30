@@ -10,7 +10,7 @@ class AIError(Exception):
 class Provider:
     name = "base"
 
-    def chat(self, system: str, messages: list[dict]) -> str:
+    def chat(self, system: str, messages: list[dict], temperature: float = 0.2) -> str:
         """messages: [{"role": "user"|"assistant", "content": "..."}]. Matn qaytaradi."""
         raise NotImplementedError
 
@@ -18,7 +18,7 @@ class Provider:
 class OllamaProvider(Provider):
     name = "ollama"
 
-    def chat(self, system: str, messages: list[dict]) -> str:
+    def chat(self, system: str, messages: list[dict], temperature: float = 0.2) -> str:
         try:
             response = httpx.post(
                 f"{settings.ollama_url}/api/chat",
@@ -26,7 +26,7 @@ class OllamaProvider(Provider):
                     "model": settings.ollama_model,
                     "messages": [{"role": "system", "content": system}, *messages],
                     "stream": False,
-                    "options": {"temperature": 0.2},
+                    "options": {"temperature": temperature},
                 },
                 timeout=300,  # lokal model sekin bo'lishi mumkin
             )
@@ -45,7 +45,7 @@ class OllamaProvider(Provider):
 class AnthropicProvider(Provider):
     name = "anthropic"
 
-    def chat(self, system: str, messages: list[dict]) -> str:
+    def chat(self, system: str, messages: list[dict], temperature: float = 0.2) -> str:
         if not settings.anthropic_api_key:
             raise AIError("ANTHROPIC_API_KEY .env faylida topilmadi")
         try:
@@ -58,7 +58,7 @@ class AnthropicProvider(Provider):
                 json={
                     "model": settings.anthropic_model,
                     "max_tokens": 2000,
-                    "temperature": 0.2,
+                    "temperature": temperature,
                     "system": system,
                     "messages": messages,
                 },

@@ -7,6 +7,8 @@ from cli.rule import rule_app
 app.add_typer(rule_app, name="rule")
 from cli.ai import ai_app
 app.add_typer(ai_app, name="ai")
+from cli.bench import bench_app
+app.add_typer(bench_app, name="bench")
 
 KIND_NAMES = {"ip": "IP manzil", "domain": "Domen", "hash": "Fayl hash"}
 

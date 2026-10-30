@@ -1,0 +1,55 @@
+description: "Windows Security jurnali: foydalanuvchi Administrators guruhiga qo'shildi (EventID 4732)"
+visible:
+  - expect: match
+    note: added to Administrators
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Administrators
+      TargetSid: 'S-1-5-32-544'
+      MemberSid: 'S-1-5-21-1111111111-2222222222-3333333333-1105'
+      SubjectUserName: helpdesk01
+  - expect: no_match
+    note: added to Remote Desktop Users
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Remote Desktop Users
+      TargetSid: 'S-1-5-32-555'
+      MemberSid: 'S-1-5-21-1111111111-2222222222-3333333333-1105'
+      SubjectUserName: helpdesk01
+hidden:
+  - expect: match
+    note: another member added to Administrators
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Administrators
+      TargetSid: 'S-1-5-32-544'
+      MemberSid: 'S-1-5-21-4444444444-5555555555-6666666666-2201'
+      SubjectUserName: svc_deploy
+  - expect: no_match
+    note: added to Backup Operators
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Backup Operators
+      TargetSid: 'S-1-5-32-551'
+      MemberSid: 'S-1-5-21-1111111111-2222222222-3333333333-1105'
+      SubjectUserName: helpdesk01
+  - expect: no_match
+    note: domain group change (4728)
+    event:
+      Channel: Security
+      EventID: 4728
+      TargetUserName: Domain Admins
+      TargetSid: 'S-1-5-21-1111111111-2222222222-3333333333-512'
+      SubjectUserName: helpdesk01
+  - expect: no_match
+    note: removed from Administrators (4733)
+    event:
+      Channel: Security
+      EventID: 4733
+      TargetUserName: Administrators
+      TargetSid: 'S-1-5-32-544'
+      SubjectUserName: helpdesk01

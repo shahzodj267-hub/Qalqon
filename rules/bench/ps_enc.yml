@@ -1,0 +1,45 @@
+description: "PowerShell base64 kodlangan buyruq bilan ishga tushirildi (-enc)"
+visible:
+  - expect: match
+    note: powershell -enc
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'powershell.exe -NoP -W Hidden -enc JABhAD0AMQA='
+  - expect: match
+    note: powershell -EncodedCommand
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'powershell.exe -ExecutionPolicy Bypass -EncodedCommand JABhAD0AMQA='
+  - expect: no_match
+    note: -Encoding parameter
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: 'powershell.exe -NoProfile -Command "Get-Content C:\logs\app.log -Encoding UTF8"'
+hidden:
+  - expect: match
+    note: pwsh -enc
+    event:
+      Image: 'C:\Program Files\PowerShell\7\pwsh.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: '"C:\Program Files\PowerShell\7\pwsh.exe" -enc UwB0AGEAcgB0AC0AUwBsAGUAZQBwAA=='
+  - expect: match
+    note: upper-case EncodedCommand
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\POWERSHELL.EXE'
+      ParentImage: 'C:\Windows\System32\wscript.exe'
+      CommandLine: 'POWERSHELL.EXE -NOP -ENCODEDCOMMAND SQBFAFgA'
+  - expect: no_match
+    note: Out-File -Encoding
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: 'powershell.exe -Command "Get-Date | Out-File C:\temp\d.txt -Encoding ascii"'
+  - expect: no_match
+    note: plain script file
+    event:
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      ParentImage: 'C:\Windows\explorer.exe'
+      CommandLine: 'powershell.exe -NoProfile -File C:\Scripts\cleanup.ps1'

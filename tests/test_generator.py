@@ -37,7 +37,7 @@ class FakeProvider:
         self.replies = list(replies)
         self.calls = []
 
-    def chat(self, system, messages):
+    def chat(self, system, messages, temperature=0.2):
         self.calls.append(list(messages))
         return self.replies.pop(0)
 
@@ -153,3 +153,26 @@ def test_no_attack_events_means_no_test_retry():
     result = generate("x", provider=FakeProvider([GOOD_REPLY]), cases=cases)
     assert result.attempts == 1
     assert not result.report.verified
+
+
+def test_extract_unclosed_fence():
+    assert extract_yaml(FENCE + "yaml\na: 1\nb: 2") == "a: 1\nb: 2"
+
+
+def test_extract_bare_fence_and_crlf():
+    assert extract_yaml(FENCE + "\r\na: 1\r\n" + FENCE) == "a: 1"
+
+
+def test_extract_takes_first_block_only():
+    text = FENCE + "yaml\na: 1\n" + FENCE + "\ntext\n" + FENCE + "yaml\nb: 2\n" + FENCE
+    assert extract_yaml(text) == "a: 1"
+
+
+def test_feedback_contains_explanation():
+    provider = FakeProvider(
+        [_fenced("rules/examples/ps_encoded.yml"), _fenced("rules/examples/ps_encoded_fixed.yml")]
+    )
+    generate("x", provider=provider, cases=_cases())
+    feedback = provider.calls[1][2]["content"]
+    assert "did NOT match" in feedback
+    assert "MATCHED because" in feedback

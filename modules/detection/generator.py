@@ -147,10 +147,18 @@ class Generated:
     report: object | None = None
 
 
+OPEN_FENCE_RE = re.compile(re.escape(FENCE) + r"[ \t]*(?:ya?ml)?[ \t]*\n", re.IGNORECASE)
+
+
 def extract_yaml(text: str) -> str:
-    """Javobdan ```yaml ... ``` blokini oladi; blok bo'lmasa, butun matnni."""
-    match = FENCE_RE.search(text)
-    return (match.group(1) if match else text).strip()
+    """Javobdan birinchi kod blokini oladi. Yopuvchi ``` bo'lmasa ham, blok bo'lmasa ham ishlaydi."""
+    text = text.replace("\r\n", "\n")
+    opening = OPEN_FENCE_RE.search(text)
+    if not opening:
+        return text.strip()
+    body = text[opening.end():]
+    closing = body.find(FENCE)
+    return (body if closing == -1 else body[:closing]).strip()
 
 
 def finalize(raw_yaml: str) -> tuple[str, list[str]]:
@@ -206,10 +214,10 @@ def _test_feedback(report) -> str:
     lines = []
     for r in report.attacks:
         if not r.matched:
-            lines.append(f"- MISSED attack event ({r.case.note}): {r.case.event}")
+            lines.append(f"- MISSED attack event ({r.case.note}): {r.case.event}\n" + "\n".join(r.why))
     for r in report.benign:
         if r.matched:
-            lines.append(f"- FALSE POSITIVE on benign event ({r.case.note}): {r.case.event}")
+            lines.append(f"- FALSE POSITIVE on benign event ({r.case.note}): {r.case.event}\n" + "\n".join(r.why))
     for f in report.missing_fields:
         lines.append(f"- Field '{f}' appears in none of the test events; use field names that exist in the events.")
     return "\n".join(lines)
@@ -227,7 +235,7 @@ def generate(
     last_error = ""
 
     for attempt in range(1, max_attempts + 1):
-        reply = provider.chat(SYSTEM_PROMPT, messages)
+        reply = provider.chat(SYSTEM_PROMPT, messages, temperature=0.2 if attempt == 1 else 0.7)
         report, feedback = None, ""
         try:
             yaml_text, removed = finalize(extract_yaml(reply))

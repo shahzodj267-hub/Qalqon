@@ -1,0 +1,45 @@
+description: "Word yoki Excel cmd.exe yoki powershell.exe jarayonini ishga tushirdi"
+visible:
+  - expect: match
+    note: Word starts cmd
+    event:
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE'
+      Image: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'cmd.exe /c whoami'
+  - expect: match
+    note: Excel starts PowerShell
+    event:
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE'
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      CommandLine: 'powershell.exe -Command "Get-Date"'
+  - expect: no_match
+    note: Explorer starts cmd
+    event:
+      ParentImage: 'C:\Windows\explorer.exe'
+      Image: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'cmd.exe'
+hidden:
+  - expect: match
+    note: 32-bit Excel starts 32-bit cmd
+    event:
+      ParentImage: 'C:\Program Files (x86)\Microsoft Office\Office16\EXCEL.EXE'
+      Image: 'C:\Windows\SysWOW64\cmd.exe'
+      CommandLine: 'cmd.exe /c net user'
+  - expect: match
+    note: Word starts 32-bit PowerShell
+    event:
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE'
+      Image: 'C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe'
+      CommandLine: 'powershell.exe -nop -w hidden'
+  - expect: no_match
+    note: Word starts print helper
+    event:
+      ParentImage: 'C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE'
+      Image: 'C:\Windows\splwow64.exe'
+      CommandLine: 'splwow64.exe 8192'
+  - expect: no_match
+    note: Explorer starts PowerShell
+    event:
+      ParentImage: 'C:\Windows\explorer.exe'
+      Image: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      CommandLine: 'powershell.exe'

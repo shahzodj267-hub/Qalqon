@@ -104,3 +104,18 @@ def test_fields_are_collected():
 def test_unsupported_or_broken_raises(detection):
     with pytest.raises(EvaluationError):
         Matcher(rule(detection))
+
+
+def test_explain_shows_match_reason_and_miss():
+    m = Matcher(
+        rule(
+            {
+                "s": {"Image|endswith": "\\powershell.exe"},
+                "c": {"CommandLine|contains": "-enc"},
+                "condition": "s and c",
+            }
+        )
+    )
+    text = "\n".join(m.explain({"Image": "C:\\x\\pwsh.exe", "CommandLine": "x -Encoding utf8"}))
+    assert "s: Image|endswith did NOT match" in text
+    assert "c: CommandLine|contains MATCHED because of ['-enc']" in text

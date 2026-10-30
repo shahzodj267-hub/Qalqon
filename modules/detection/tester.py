@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
@@ -24,6 +24,7 @@ class Case:
 class CaseResult:
     case: Case
     matched: bool
+    why: list[str] = field(default_factory=list)
 
     @property
     def passed(self) -> bool:
@@ -91,5 +92,9 @@ def run_tests(yaml_text: str, cases: list[Case]) -> Report:
     matcher = Matcher(rule)
     seen = {str(k).lower() for case in cases for k in case.event}
     missing = sorted(f for f in matcher.fields if f.lower() not in seen)
-    results = [CaseResult(case, matcher.matches(case.event)) for case in cases]
+    results = []
+    for case in cases:
+        matched = matcher.matches(case.event)
+        why = [] if matched == case.expect_match else matcher.explain(case.event)
+        results.append(CaseResult(case, matched, why))
     return Report(str(rule.get("title", "?")), results, missing)
