@@ -53,3 +53,12 @@ First run 2026-10-30, single run each, qayta urinishlarda temperature 0.7 (later
 - qwen2.5-coder:7b 3/4 (ps_enc failed: hidden attacks 1/2, hidden false positives 1/2)
 - mistral 1/4, llama3 0/4 (mostly invalid YAML)
 Caveats: 4 scenarios written by the author; `office` description is close to a prompt example; `local_admin` description gives the EventID; one run per model; the 0.7 retry temperature probably hurt llama3/mistral.
+
+## Benchmark results, retry temperature back at 0.2 (2026-10-30)
+Two runs per model (qwen and mistral were identical both times: near-deterministic at 0.2).
+- qwen2.5-coder:7b: 2/4 (certutil, office pass; local_admin generation error; ps_enc FAIL)
+- mistral: 2/4 (certutil, office pass; local_admin YAML error; ps_enc FAIL)
+- llama3: 0/4 (mostly invalid YAML)
+ps_enc fails on all three models: `-enc` substring also matches `-Encoding`, and pwsh.exe is missed (description does not mention pwsh, so the scenario may be strict).
+Not conclusive: 4 author-written scenarios; `office` resembles a prompt example; `local_admin` description gives the EventID; retry-temperature change (0.7 vs 0.2) moved single scenarios in both directions.
+Takeaway: local 7B/8B models are not a reliable rule writer on their own; the validation + log-test pipeline is what prevents bad rules from being reported as ready. Cloud model comparison pending.
