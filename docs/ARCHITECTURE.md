@@ -34,3 +34,10 @@ Module 2: Detection Copilot.
 - Sample data: `rules/samples/benign_process_creation.yml` (shared benign corpus), `rules/tests/*.yml` (attack + benign events per scenario).
 - CLI: `rule test <rule.yml> <events.yml>`, `rule generate "<text>" --logs <events.yml>`
 - Limits: logsource is not checked; passing only means passing the sample events; no correlation/aggregation.
+
+## Module 2: log testing
+- `modules/detection/evaluator.py` - own minimal Sigma evaluator. Unsupported features raise EvaluationError, never silently pass.
+- `modules/detection/tester.py` - runs a rule over sample events: hits, false positives, fields missing from all events.
+- Sample data: `rules/samples/benign_process_creation.yml` (shared benign corpus), `rules/tests/*.yml`.
+- CLI: `rule test <rule.yml> <events.yml>`, `rule generate "<text>" --logs <events.yml>`
+- Limits: logsource not checked; passing only means passing the sample events; no correlation/aggregation.
