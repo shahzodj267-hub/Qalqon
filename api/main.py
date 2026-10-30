@@ -1,9 +1,25 @@
-from fastapi import FastAPI, HTTPException
+from contextlib import asynccontextmanager
+
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from api import auth
+from api.deps import require_access
+from core import models  # noqa: F401  (jadvallar ro'yxatdan o'tishi uchun)
+from core import security
+from core.db import Base, engine
 from modules.threat_intel.aggregator import analyze
 
-app = FastAPI(title="Qalqon API", version="0.1.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    security.check_config()  # JWT_SECRET yo'q bo'lsa, server ishga tushmaydi
+    Base.metadata.create_all(engine)
+    yield
+
+
+app = FastAPI(title="Qalqon API", version="0.2.0", lifespan=lifespan)
+app.include_router(auth.router)
 
 
 class IocRequest(BaseModel):
@@ -15,7 +31,7 @@ def health():
     return {"status": "ok"}
 
 
-@app.post("/api/ioc")
+@app.post("/api/ioc", dependencies=[Depends(require_access)])
 def check_ioc(request: IocRequest):
     try:
         return analyze(request.value)

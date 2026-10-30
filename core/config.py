@@ -15,6 +15,12 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-5-5"
 
+    # Web API
+    database_url: str = "sqlite:///./qalqon.db"
+    jwt_secret: str = ""
+    jwt_expire_minutes: int = 60
+    trial_days: int = 3
+
     model_config = SettingsConfigDict(env_file=".env")
 
 
