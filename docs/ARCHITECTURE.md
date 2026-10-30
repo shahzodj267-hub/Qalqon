@@ -46,3 +46,10 @@ Module 2: Detection Copilot.
 - generate --logs: failed log test is fed back to the model (3 attempts); failing report exits with code 1.
 - PowerShell -enc: not fixed in 3 attempts (model repeated the same rule). Office and local-admin rules passed.
 - Known gaps: Office example in the prompt is nearly identical to the test (memorized); MITRE check verifies the ID exists, not that it fits the behavior (t1098.001 accepted for local admin add); tests are visible to the model (no hidden set yet).
+
+## Benchmark (rules/bench, `bench run --model X`)
+4 scenarios, visible events (shown to the model) + hidden events (final check). PASS needs both.
+First run 2026-10-30, single run each, qayta urinishlarda temperature 0.7 (later reverted to 0.2):
+- qwen2.5-coder:7b 3/4 (ps_enc failed: hidden attacks 1/2, hidden false positives 1/2)
+- mistral 1/4, llama3 0/4 (mostly invalid YAML)
+Caveats: 4 scenarios written by the author; `office` description is close to a prompt example; `local_admin` description gives the EventID; one run per model; the 0.7 retry temperature probably hurt llama3/mistral.

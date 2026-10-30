@@ -235,7 +235,7 @@ def generate(
     last_error = ""
 
     for attempt in range(1, max_attempts + 1):
-        reply = provider.chat(SYSTEM_PROMPT, messages, temperature=0.2 if attempt == 1 else 0.7)
+        reply = provider.chat(SYSTEM_PROMPT, messages, temperature=0.2)
         report, feedback = None, ""
         try:
             yaml_text, removed = finalize(extract_yaml(reply))

@@ -1,0 +1,48 @@
+=== qwen2.5-coder:7b (ishga tushirish 1) ===
+Model: ollama / qwen2.5-coder:7b
+  certutil     PASS  1 urinish | ko'rinadigan: hujum 1/1, yolg'on signal 0/11 | yashirin: hujum 2/2, yolg'on signal 0/2
+  local_admin  XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: Sigma qoidasi noto'g'ri: Sigma rule must contain a
+  office       PASS  1 urinish | ko'rinadigan: hujum 2/2, yolg'on signal 0/11 | yashirin: hujum 2/2, yolg'on signal 0/2
+  ps_enc       FAIL  3 urinish | ko'rinadigan: hujum 2/2, yolg'on signal 1/11 | yashirin: hujum 1/2, yolg'on signal 1/2
+
+Natija: 2/4 senariy o'tdi
+=== qwen2.5-coder:7b (ishga tushirish 2) ===
+Model: ollama / qwen2.5-coder:7b
+  certutil     PASS  1 urinish | ko'rinadigan: hujum 1/1, yolg'on signal 0/11 | yashirin: hujum 2/2, yolg'on signal 0/2
+  local_admin  XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: Sigma qoidasi noto'g'ri: Sigma rule must contain a
+  office       PASS  1 urinish | ko'rinadigan: hujum 2/2, yolg'on signal 0/11 | yashirin: hujum 2/2, yolg'on signal 0/2
+  ps_enc       FAIL  3 urinish | ko'rinadigan: hujum 2/2, yolg'on signal 1/11 | yashirin: hujum 1/2, yolg'on signal 1/2
+
+Natija: 2/4 senariy o'tdi
+=== llama3:latest (ishga tushirish 1) ===
+Model: ollama / llama3:latest
+  certutil     XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: Javob YAML qoida (key: value) emas
+  local_admin  XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: YAML sintaksis xatosi: mapping values are not allo
+  office       XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: YAML sintaksis xatosi: mapping values are not allo
+  ps_enc       XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: YAML sintaksis xatosi: mapping values are not allo
+
+Natija: 0/4 senariy o'tdi
+=== llama3:latest (ishga tushirish 2) ===
+Model: ollama / llama3:latest
+  certutil     XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: YAML sintaksis xatosi: while parsing a block mappi
+  local_admin  FAIL  2 urinish | ko'rinadigan: hujum 1/1, yolg'on signal 0/11 | yashirin: hujum 1/1, yolg'on signal 1/3
+  office       XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: YAML sintaksis xatosi: mapping values are not allo
+  ps_enc       FAIL  3 urinish | ko'rinadigan: hujum 0/2, yolg'on signal 0/11 | yashirin: hujum 0/2, yolg'on signal 0/2
+
+Natija: 0/4 senariy o'tdi
+=== mistral:latest (ishga tushirish 1) ===
+Model: ollama / mistral:latest
+  certutil     PASS  1 urinish | ko'rinadigan: hujum 1/1, yolg'on signal 0/11 | yashirin: hujum 2/2, yolg'on signal 0/2
+  local_admin  XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: YAML sintaksis xatosi: while scanning a block scal
+  office       PASS  2 urinish | ko'rinadigan: hujum 2/2, yolg'on signal 0/11 | yashirin: hujum 2/2, yolg'on signal 0/2
+  ps_enc       FAIL  3 urinish | ko'rinadigan: hujum 2/2, yolg'on signal 1/11 | yashirin: hujum 1/2, yolg'on signal 1/2
+
+Natija: 2/4 senariy o'tdi
+=== mistral:latest (ishga tushirish 2) ===
+Model: ollama / mistral:latest
+  certutil     PASS  1 urinish | ko'rinadigan: hujum 1/1, yolg'on signal 0/11 | yashirin: hujum 2/2, yolg'on signal 0/2
+  local_admin  XATO  3 urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: YAML sintaksis xatosi: while scanning a block scal
+  office       PASS  2 urinish | ko'rinadigan: hujum 2/2, yolg'on signal 0/11 | yashirin: hujum 2/2, yolg'on signal 0/2
+  ps_enc       FAIL  3 urinish | ko'rinadigan: hujum 2/2, yolg'on signal 1/11 | yashirin: hujum 1/2, yolg'on signal 1/2
+
+Natija: 2/4 senariy o'tdi
