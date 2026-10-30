@@ -112,3 +112,44 @@ def test_yaml_or_mistake_gets_hint():
     result = generate("x", provider=provider)
     assert result.attempts == 2
     assert "inside a value" in provider.calls[1][2]["content"]
+
+
+# --- log sinovi bilan avto-tuzatish ---
+from pathlib import Path  # noqa: E402
+
+from modules.detection import tester  # noqa: E402
+
+ROOT = Path(__file__).parent.parent
+
+
+def _fenced(path):
+    return FENCE + "yaml\n" + (ROOT / path).read_text(encoding="utf-8") + FENCE
+
+
+def _cases():
+    return tester.load_cases(ROOT / "rules/tests/ps_encoded.yml") + tester.load_cases(tester.DEFAULT_CORPUS)
+
+
+def test_failed_log_test_triggers_fix():
+    provider = FakeProvider(
+        [_fenced("rules/examples/ps_encoded.yml"), _fenced("rules/examples/ps_encoded_fixed.yml")]
+    )
+    result = generate("x", provider=provider, cases=_cases())
+    assert result.attempts == 2
+    assert result.report.ok
+    feedback = provider.calls[1][2]["content"]
+    assert "MISSED" in feedback and "FALSE POSITIVE" in feedback
+
+
+def test_returns_failing_report_after_last_attempt():
+    bad = _fenced("rules/examples/ps_encoded.yml")
+    result = generate("x", provider=FakeProvider([bad, bad]), max_attempts=2, cases=_cases())
+    assert result.attempts == 2
+    assert not result.report.ok
+
+
+def test_no_attack_events_means_no_test_retry():
+    cases = tester.load_cases(tester.DEFAULT_CORPUS)
+    result = generate("x", provider=FakeProvider([GOOD_REPLY]), cases=cases)
+    assert result.attempts == 1
+    assert not result.report.verified

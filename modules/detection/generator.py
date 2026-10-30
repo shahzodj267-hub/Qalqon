@@ -9,6 +9,8 @@ import yaml
 from core.ai import Provider, get_provider
 from modules.detection import converter
 from modules.detection.converter import RuleError
+from modules.detection import tester
+from modules.detection.evaluator import EvaluationError
 
 MAX_ATTEMPTS = 3
 FENCE = "`" * 3
@@ -142,6 +144,7 @@ class Generated:
     collection: object
     attempts: int
     warnings: list[str] = field(default_factory=list)
+    report: object | None = None
 
 
 def extract_yaml(text: str) -> str:
@@ -199,11 +202,25 @@ def _hint(error: str) -> str:
     return YAML_HINT if error.startswith("YAML") else ""
 
 
+def _test_feedback(report) -> str:
+    lines = []
+    for r in report.attacks:
+        if not r.matched:
+            lines.append(f"- MISSED attack event ({r.case.note}): {r.case.event}")
+    for r in report.benign:
+        if r.matched:
+            lines.append(f"- FALSE POSITIVE on benign event ({r.case.note}): {r.case.event}")
+    for f in report.missing_fields:
+        lines.append(f"- Field '{f}' appears in none of the test events; use field names that exist in the events.")
+    return "\n".join(lines)
+
+
 def generate(
     description: str,
     provider: Provider | None = None,
     max_attempts: int = MAX_ATTEMPTS,
     on_retry: Callable[[int, str], None] | None = None,
+    cases: list | None = None,
 ) -> Generated:
     provider = provider or get_provider()
     messages = [{"role": "user", "content": f"Detection description: {description}"}]
@@ -211,9 +228,24 @@ def generate(
 
     for attempt in range(1, max_attempts + 1):
         reply = provider.chat(SYSTEM_PROMPT, messages)
+        report, feedback = None, ""
         try:
             yaml_text, removed = finalize(extract_yaml(reply))
             collection = validate(yaml_text)
+            if cases:
+                try:
+                    report = tester.run_tests(yaml_text, cases)
+                except EvaluationError as e:
+                    raise RuleError(
+                        f"The rule uses features that cannot be tested: {e}. Use simple selections, "
+                        "modifiers contains/startswith/endswith/all/re and and/or/not."
+                    ) from e
+                if report.verified and not report.ok:
+                    last_error = (
+                        f"log sinovi: hujum {report.hits}/{len(report.attacks)}, "
+                        f"yolg'on signal {report.false_positives}/{len(report.benign)}"
+                    )
+                    feedback = _test_feedback(report)
         except RuleError as e:
             last_error = str(e)
             if on_retry:
@@ -230,6 +262,24 @@ def generate(
             ]
             continue
 
+        if feedback and attempt < max_attempts:
+            if on_retry:
+                on_retry(attempt, last_error)
+            messages += [
+                {"role": "assistant", "content": reply},
+                {
+                    "role": "user",
+                    "content": (
+                        "The rule is valid but failed testing against sample events:\n"
+                        f"{feedback}\n"
+                        "Fix the rule so it catches every attack event and none of the benign events. "
+                        "Write a general rule, do not hard-code the events. "
+                        "Reply with the full corrected rule, YAML only."
+                    ),
+                },
+            ]
+            continue
+
         warnings = []
         if removed:
             warnings.append(f"Noto'g'ri/eskirgan MITRE ID olib tashlandi: {', '.join(removed)}")
@@ -237,7 +287,9 @@ def generate(
             warnings.append("MITRE ATT&CK texnika tegi (attack.tXXXX) yo'q")
         if converter.mitre_attack_techniques is None:
             warnings.append("MITRE bazasi topilmadi, texnika ID'lari tekshirilmadi")
-        return Generated(yaml_text, collection, attempt, warnings)
+        return Generated(
+            yaml_text=yaml_text, collection=collection, attempts=attempt, warnings=warnings, report=report
+        )
 
     raise GenerationError(
         f"{max_attempts} urinishdan keyin ham to'g'ri qoida chiqmadi. Oxirgi xato: {last_error}"

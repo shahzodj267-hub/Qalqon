@@ -112,7 +112,17 @@ def generate(
     save: Optional[Path] = typer.Option(None, "--save", "-s", help="Sigma YAML'ni shu faylga saqlash"),
     logs: Optional[list[Path]] = typer.Option(None, "--logs", "-l", help="Qoidani shu voqealar faylida sinash"),
 ):
-    """Oddiy tavsifdan AI yordamida Sigma qoidasi yaratadi va SPL/KQL ga o'giradi."""
+    """Oddiy tavsifdan AI yordamida Sigma qoidasi yaratadi, loglarda sinaydi va SPL/KQL ga o'giradi."""
+    cases = None
+    if logs:
+        try:
+            cases = []
+            for path in logs:
+                cases += tester.load_cases(path)
+            cases += tester.load_cases(tester.DEFAULT_CORPUS)
+        except tester.LogFileError as e:
+            typer.secho(f"Sinov fayli xato: {e}", fg=typer.colors.RED)
+            raise typer.Exit(1)
 
     def on_retry(attempt: int, error: str) -> None:
         typer.secho(f"  urinish {attempt} muvaffaqiyatsiz: {error[:120]}", fg=typer.colors.YELLOW)
@@ -120,7 +130,7 @@ def generate(
     try:
         provider = get_provider()
         typer.echo(f"AI provayder: {provider.name}. Qoida yozilmoqda...")
-        result = generator.generate(description, provider=provider, on_retry=on_retry)
+        result = generator.generate(description, provider=provider, on_retry=on_retry, cases=cases)
     except (AIError, generator.GenerationError) as e:
         typer.secho(f"Xato: {e}", fg=typer.colors.RED)
         raise typer.Exit(1)
@@ -131,17 +141,17 @@ def generate(
     _show(result.collection)
     for w in result.warnings:
         typer.secho(f"! {w}", fg=typer.colors.YELLOW)
-    typer.secho(
-        "\nDiqqat: sintaksis tekshirildi, mantiq emas. Mantiqni namunaviy loglarda sinang.",
-        fg=typer.colors.YELLOW,
-    )
 
     if save:
         save.write_text(result.yaml_text, encoding="utf-8")
         typer.echo(f"Saqlandi: {save}")
 
-    if logs:
-        if not _run_tests(result.yaml_text, logs):
+    if result.report:
+        _print_report(result.report)
+        if not result.report.ok:
             raise typer.Exit(1)
     else:
-        typer.echo("Mantiqiy sinov uchun: --logs rules/tests/<fayl>.yml")
+        typer.secho(
+            "\nDiqqat: sintaksis tekshirildi, mantiq emas. Mantiqiy sinov uchun: --logs rules/tests/<fayl>.yml",
+            fg=typer.colors.YELLOW,
+        )

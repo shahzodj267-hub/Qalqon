@@ -41,3 +41,8 @@ Module 2: Detection Copilot.
 - Sample data: `rules/samples/benign_process_creation.yml` (shared benign corpus), `rules/tests/*.yml`.
 - CLI: `rule test <rule.yml> <events.yml>`, `rule generate "<text>" --logs <events.yml>`
 - Limits: logsource not checked; passing only means passing the sample events; no correlation/aggregation.
+
+## Module 2: auto-fix loop (results 2026-10-30, local qwen2.5-coder:7b)
+- generate --logs: failed log test is fed back to the model (3 attempts); failing report exits with code 1.
+- PowerShell -enc: not fixed in 3 attempts (model repeated the same rule). Office and local-admin rules passed.
+- Known gaps: Office example in the prompt is nearly identical to the test (memorized); MITRE check verifies the ID exists, not that it fits the behavior (t1098.001 accepted for local admin add); tests are visible to the model (no hidden set yet).
