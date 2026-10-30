@@ -26,7 +26,7 @@ class OllamaProvider(Provider):
                     "model": settings.ollama_model,
                     "messages": [{"role": "system", "content": system}, *messages],
                     "stream": False,
-                    "options": {"temperature": temperature},
+                    "options": {"temperature": temperature, "seed": 42},
                 },
                 timeout=300,  # lokal model sekin bo'lishi mumkin
             )

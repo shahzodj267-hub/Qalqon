@@ -69,7 +69,9 @@ def _fmt(report) -> str:
     return f"hujum {report.hits}/{len(report.attacks)}, yolg'on signal {report.false_positives}/{len(report.benign)}"
 
 
-def run_scenario(scenario: Scenario, provider: Provider, max_attempts: int = 3) -> Result:
+def run_scenario(
+    scenario: Scenario, provider: Provider, max_attempts: int = 3, save_dir: Path | None = None
+) -> Result:
     corpus = tester.load_cases(tester.DEFAULT_CORPUS)
     try:
         gen = generator.generate(
@@ -79,6 +81,9 @@ def run_scenario(scenario: Scenario, provider: Provider, max_attempts: int = 3) 
             cases=scenario.visible + corpus,
         )
         hidden = tester.run_tests(gen.yaml_text, scenario.hidden)
+        if save_dir:
+            save_dir.mkdir(parents=True, exist_ok=True)
+            (save_dir / f"{scenario.name}.yml").write_text(gen.yaml_text, encoding="utf-8")
     except (generator.GenerationError, EvaluationError) as e:
         return Result(scenario.name, False, error=str(e).splitlines()[0][:400])
 
@@ -96,10 +101,11 @@ def run_all(
     provider: Provider,
     scenarios: list[Scenario],
     on_done: Callable[[Result], None] | None = None,
+    save_dir: Path | None = None,
 ) -> list[Result]:
     results = []
     for scenario in scenarios:
-        result = run_scenario(scenario, provider)
+        result = run_scenario(scenario, provider, save_dir=save_dir)
         results.append(result)
         if on_done:
             on_done(result)

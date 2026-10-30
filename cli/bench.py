@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Optional
 
 import typer
@@ -50,7 +51,8 @@ def run(
         )
 
     try:
-        results = benchmark.run_all(provider, scenarios, on_done=show)
+        save_dir = Path("bench_results") / label.replace(":", "_").replace("/", "_")
+        results = benchmark.run_all(provider, scenarios, on_done=show, save_dir=save_dir)
     except AIError as e:
         typer.secho(f"\nAI provayder xatosi, benchmark to'xtatildi: {e}", fg=typer.colors.RED)
         raise typer.Exit(1)
