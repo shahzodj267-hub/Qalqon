@@ -49,3 +49,12 @@ events:
       EventID: 4624
       TargetUserName: anna
       LogonType: 2
+  - expect: no_match
+    note: added to Hyper-V Administrators (not the built-in Administrators)
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Hyper-V Administrators
+      TargetSid: 'S-1-5-32-578'
+      MemberSid: 'S-1-5-21-1111111111-2222222222-3333333333-1105'
+      SubjectUserName: helpdesk01

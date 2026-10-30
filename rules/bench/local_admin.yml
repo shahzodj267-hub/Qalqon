@@ -53,3 +53,12 @@ hidden:
       TargetUserName: Administrators
       TargetSid: 'S-1-5-32-544'
       SubjectUserName: helpdesk01
+  - expect: no_match
+    note: added to Hyper-V Administrators
+    event:
+      Channel: Security
+      EventID: 4732
+      TargetUserName: Hyper-V Administrators
+      TargetSid: 'S-1-5-32-578'
+      MemberSid: 'S-1-5-21-4444444444-5555555555-6666666666-2201'
+      SubjectUserName: svc_deploy
