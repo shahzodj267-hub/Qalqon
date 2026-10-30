@@ -79,7 +79,7 @@ def run_scenario(scenario: Scenario, provider: Provider, max_attempts: int = 3) 
             cases=scenario.visible + corpus,
         )
         hidden = tester.run_tests(gen.yaml_text, scenario.hidden)
-    except (generator.GenerationError, AIError, EvaluationError) as e:
+    except (generator.GenerationError, EvaluationError) as e:
         return Result(scenario.name, False, error=str(e).splitlines()[0][:400])
 
     visible_ok = bool(gen.report and gen.report.ok)

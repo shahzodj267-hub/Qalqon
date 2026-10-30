@@ -34,6 +34,7 @@ Detection logic (very important):
 - OR: list several values under ONE key. Never write the word "or" inside a value.
 - AND: several keys inside one selection, or the modifier |contains|all.
 - Combine named selections only in "condition" with and / or / not.
+  The detection block MUST end with a "condition:" line.
 
 Tags:
 - Use the tactic tag and a CURRENT technique tag in lowercase, e.g. attack.persistence and attack.t1136.001.
@@ -206,8 +207,18 @@ def validate(yaml_text: str):
     return collection
 
 
+CONDITION_HINT = (
+    "Hint: the detection block must contain a line like 'condition: selection' "
+    "that names the selections to combine.\n"
+)
+
+
 def _hint(error: str) -> str:
-    return YAML_HINT if error.startswith("YAML") else ""
+    if error.startswith("YAML"):
+        return YAML_HINT
+    if "at least one condition" in error:
+        return CONDITION_HINT
+    return ""
 
 
 def _test_feedback(report) -> str:

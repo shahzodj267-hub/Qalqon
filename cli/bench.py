@@ -49,7 +49,11 @@ def run(
             fg=color,
         )
 
-    results = benchmark.run_all(provider, scenarios, on_done=show)
+    try:
+        results = benchmark.run_all(provider, scenarios, on_done=show)
+    except AIError as e:
+        typer.secho(f"\nAI provayder xatosi, benchmark to'xtatildi: {e}", fg=typer.colors.RED)
+        raise typer.Exit(1)
     passed = sum(r.passed for r in results)
     typer.secho(f"\nNatija: {passed}/{len(results)} senariy o'tdi", bold=True)
     if passed < len(results):

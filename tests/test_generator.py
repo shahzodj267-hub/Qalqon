@@ -176,3 +176,11 @@ def test_feedback_contains_explanation():
     feedback = provider.calls[1][2]["content"]
     assert "did NOT match" in feedback
     assert "MATCHED because" in feedback
+
+
+def test_missing_condition_gets_hint():
+    no_cond = GOOD_REPLY.replace("  condition: selection_img and selection_cli\n", "")
+    provider = FakeProvider([no_cond, GOOD_REPLY])
+    result = generate("x", provider=provider)
+    assert result.attempts == 2
+    assert "'condition: selection'" in provider.calls[1][2]["content"]
